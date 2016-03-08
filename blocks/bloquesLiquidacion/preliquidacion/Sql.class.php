@@ -237,7 +237,13 @@ class Sql extends \Sql {
                 $cadenaSql .= 'p.documento = v.documento ';
                 $cadenaSql .= 'AND v.id_tipo_vinculacion = '.$variable;
                 break;
-            
+            case 'insertarFuncionDetallePreliquidacion':
+                $cadenaSql = "SELECT liquidacion.insertar_detalle_preliquidacion";
+                $cadenaSql .="('".$variable['cedulas']."',";
+                $cadenaSql .=$variable['preliquidacion'].",'";
+                $cadenaSql .=$variable['conceptos']."','";
+                $cadenaSql .=$variable['valores']."')";
+                break;
 
         }
                 
