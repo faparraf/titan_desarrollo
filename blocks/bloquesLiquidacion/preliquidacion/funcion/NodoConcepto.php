@@ -1,12 +1,13 @@
 <?php
-include 'NodoConceptoInterfaz.php';
+namespace bloquesConcepto\contenidoConcepto\funcion;
+//include 'NodoConceptoInterfaz.php';
 /**
 *	NodoConcepto
 *	@package 	Interprete
 *	@subpackage	NodoConcepto
 *	@author 	Fabio Parra
 */
-class NodoConcepto implements NodoConceptoInterfaz{
+class NodoConcepto{// implements NodoConceptoInterfaz{
 	//Nombre del concepto que se esta evaluando
 	var $nombreConcepto	= null;
 
@@ -41,8 +42,33 @@ class NodoConcepto implements NodoConceptoInterfaz{
 	/**
 	*	Funcion para modificar el valor del concepto con base a los conceptos que esten en el objeto $conceptos
 	*/
-	function evaluarConcepto(){
-
+	function evaluarConcepto($referencia){
+            if($this->valorConcepto == null){
+                if($this->referencia == null){
+                    foreach ($this->conceptos as $concepto){
+                        $concepto->evaluarConcepto($referencia);
+                    }
+                    switch($this->operadores){
+                        case '+':
+                            $this->valorConcepto = $this->conceptos[1] + $this->conceptos[0];
+                            break;
+                        case '-':
+                            $this->valorConcepto = $this->conceptos[1] - $this->conceptos[0];
+                            break;
+                        case '*':
+                            $this->valorConcepto = $this->conceptos[1] * $this->conceptos[0];
+                            break;
+                        case '/':
+                            $this->valorConcepto = $this->conceptos[1] / $this->conceptos[0];
+                            break;
+                        case '^':
+                            $this->valorConcepto = pow($this->conceptos[1], $this->conceptos[0]);
+                            break;
+                    }
+                }else{
+                    $this->valorConcepto = $referencia[$this->nombreConcepto];
+                }
+            }
 	}
 
 	/**
@@ -76,6 +102,21 @@ class NodoConcepto implements NodoConceptoInterfaz{
 	function __toString(){
 		return "$this->nombreConcepto  $this->valorConcepto";
 	}
+        
+        function clonar(){
+            return clone $this;
+        }
+        
+        function getListaReferencias(){
+            $referencias = array();
+            if($this->referencia != null){
+                $referencias[$this->nombreConcepto] = $this->referencia;
+            }
+            foreach($this->conceptos as $concepto){
+                $referencias = array_merge($referencias, $concepto->getListaReferencia);
+            }
+            return $referencias;
+        }
 
 }
 

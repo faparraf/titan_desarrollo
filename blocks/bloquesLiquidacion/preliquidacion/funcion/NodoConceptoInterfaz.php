@@ -5,7 +5,7 @@
 */
 interface NodoConceptoInterfaz{
 
-    public function evaluarConcepto();
+    public function evaluarConcepto($referencia );
     
     public function getValor();
     

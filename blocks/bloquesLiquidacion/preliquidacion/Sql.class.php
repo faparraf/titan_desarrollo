@@ -61,7 +61,35 @@ class Sql extends \Sql {
                 $cadenaSql .= ") ";
                 $cadenaSql .= "RETURNING  id; ";
                 break;
+            
+            case 'insertarDetallePreliquidacion' :
+                $cadenaSql = 'INSERT INTO ';
+                $cadenaSql .= 'liquidacion.detalle_preliquidacion';
+                $cadenaSql .= '( ';
+                $cadenaSql .= 'preliquidacion,';
+                $cadenaSql .= "persona,";
+                $cadenaSql .= "concepto,";
+                $cadenaSql .= "valor";
+                $cadenaSql .= ") ";
+                $cadenaSql .= "VALUES ";
+                $cadenaSql .= "( ";
+                $cadenaSql .= "'" . $variable ['preliquidacion']  . "', ";
+                $cadenaSql .= "'" . $variable ['persona']  . "', ";
+                $cadenaSql .= "'" . $variable ['concepto']  . "', ";
+                $cadenaSql .= "'" . $variable ['valor']  . "'";
+                $cadenaSql .= "); ";
+                break;
 
+            case 'generarFormulaNomina':
+                $cadenaSql = 'SELECT ';
+                $cadenaSql .= 'string_agg(c.simbolo, ' + ') as formula ';
+                $cadenaSql .= 'FROM concepto.asociacion_concepto ac, ';
+                $cadenaSql .= 'concepto.concepto c ';
+                $cadenaSql .= 'WHERE ';
+                $cadenaSql .= 'ac.codigo = c.codigo ';
+                $cadenaSql .= 'AND ac.codigo_nomina = '.$variable;
+                break;
+            
             case 'buscarVinculacion' :      
                 $cadenaSql = 'SELECT ';
                 $cadenaSql .= 'id as ID, ';
@@ -70,7 +98,7 @@ class Sql extends \Sql {
                 $cadenaSql .= 'parametro.tipo_vinculacion';        
                 break;
             
-            case 'buscarFormula' :
+            case 'buscarFormulaConcepto' :
                 $cadenaSql = 'SELECT ';
                 $cadenaSql .= 'formula as FORMULA ';
                 $cadenaSql .= 'FROM ';
@@ -78,7 +106,24 @@ class Sql extends \Sql {
                 $cadenaSql .= 'WHERE ';
                 $cadenaSql .= "simbolo = '$variable'";
                 break;
-                    
+            
+            case 'buscarValorParametro' :
+                $cadenaSql = 'SELECT ';
+                $cadenaSql .= 'valor as VALOR ';
+                $cadenaSql .= 'FROM ';
+                $cadenaSql .= 'parametro.parametro_liquidacion ';
+                $cadenaSql .= 'WHERE ';
+                $cadenaSql .= "simbolo = '$variable'";
+                break;
+            
+            case 'buscarReferenciaVariable' :
+                $cadenaSql = 'SELECT ';
+                $cadenaSql .= 'valor as VALOR ';
+                $cadenaSql .= 'FROM ';
+                $cadenaSql .= 'concepto.variable ';
+                $cadenaSql .= 'WHERE ';
+                $cadenaSql .= "simbolo = '$variable'";
+                break;
             case 'buscarNomina' :
                 $cadenaSql = 'SELECT ';
                 $cadenaSql .= 'n.codigo_nomina as ID, ';
@@ -154,6 +199,45 @@ class Sql extends \Sql {
                 $cadenaSql .= 'n.id= v.id AND ';
                 $cadenaSql .= 'p.id = ' . $variable . ';';
                 break;
+            
+            case 'buscarReferenciasEvaluacion':
+                $cadenaSql = 'SELECT p.documento as id, c.sueldo as valor ';
+                $cadenaSql .= 'FROM parametro.cargo c, ';
+                $cadenaSql .= 'novedad.cargoxfuncionario cf, ';
+                $cadenaSql .= 'novedad.funcionario f, ';
+                $cadenaSql .= 'novedad.identificacion_expedicion i, ';
+                $cadenaSql .= 'persona.persona_natural p ';
+                $cadenaSql .= 'WHERE c.codigo_cargo = cf.codigo_cargo ';
+                $cadenaSql .= 'AND cf.id_funcionario = f.id_funcionario ';
+                $cadenaSql .= 'AND f.id_datos_identificacion = i.id_datos_identificacion ';
+                $cadenaSql .= 'AND i.documento = p.documento ';
+                $cadenaSql .= '';
+                break;
+            
+            case 'buscarEstadisticasEvaluacion':
+                $cadenaSql = 'SELECT count(p.documento) as personas, c.sueldo as valor ';
+                $cadenaSql .= 'FROM parametro.cargo c, ';
+                $cadenaSql .= 'novedad.cargoxfuncionario cf, ';
+                $cadenaSql .= 'novedad.funcionario f, ';
+                $cadenaSql .= 'novedad.identificacion_expedicion i, ';
+                $cadenaSql .= 'persona.persona_natural p ';
+                $cadenaSql .= 'WHERE c.codigo_cargo = cf.codigo_cargo ';
+                $cadenaSql .= 'AND cf.id_funcionario = f.id_funcionario ';
+                $cadenaSql .= 'AND f.id_datos_identificacion = i.id_datos_identificacion ';
+                $cadenaSql .= 'AND i.documento = p.documento ';
+                $cadenaSql .= 'group by c.sueldo ';
+                break;
+            
+            case 'buscarPersonasxVinculacion':
+                $cadenaSql = 'SELECT p.documento as id ';
+                $cadenaSql .= 'FROM ';
+                $cadenaSql .= 'persona.vinculacion_persona_natural v, ';
+                $cadenaSql .= 'persona.persona_natural p ';
+                $cadenaSql .= 'WHERE ';
+                $cadenaSql .= 'p.documento = v.documento ';
+                $cadenaSql .= 'AND v.id_tipo_vinculacion = '.$variable;
+                break;
+            
 
         }
                 

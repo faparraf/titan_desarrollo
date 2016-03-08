@@ -202,7 +202,7 @@ class Formulario {
         // --------------- FIN CONTROL : Select --------------------------------------------------
         
 //        $interprete = new \Interprete($this->lenguaje, $this->miSql, $primerRecursoDB);
-//        $arbol = $interprete->generarArbol($interprete->temp);
+//        $arbol = $interprete->generarArbol("SMLVQ",true);
 //        echo "<pre>";
 //        print_r($arbol);
 //        echo "</pre>";

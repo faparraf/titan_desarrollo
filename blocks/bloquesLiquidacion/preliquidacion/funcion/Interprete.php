@@ -1,5 +1,6 @@
 <?php
-include 'InterpreteInterfaz.php';
+namespace bloquesConcepto\contenidoConcepto\funcion;
+//include 'InterpreteInterfaz.php';
 include "NodoConcepto.php";
 
 /**
@@ -8,7 +9,7 @@ include "NodoConcepto.php";
 *	@subpackage	Interprete
 *	@author 	Fabio Parra
 */
-class Interprete implements InterpreteInterfaz{
+class Interprete{//] implements InterpreteInterfaz{
         
     
         var $miSql;
@@ -22,10 +23,6 @@ class Interprete implements InterpreteInterfaz{
             $this->miSql = $sql;
             $this->lenguaje = $lenguaje;
             $this->primerRecursoDB = $primerRecurso;
-//            $atributos ['cadena_sql'] = $this->miSql->getCadenaSql ( "buscarFormula",'4' );
-//            $this->temp = $this->primerRecursoDB->ejecutarAcceso ( $atributos ['cadena_sql'], "busqueda" );
-//            $this->temp = $this->temp[0]['formula'];
-            //echo "Simbolo: ".$this->temp;
 	}
 
 	/**
@@ -114,8 +111,10 @@ class Interprete implements InterpreteInterfaz{
     		break;
     		case "^":
     			return 3;
+                    break;
     		case "(":
     			return 4;
+                    break;
     		case ")":
     			return 4;
     		break;
@@ -128,12 +127,22 @@ class Interprete implements InterpreteInterfaz{
 	*	@return	NodoConcepto
 	*/
     function generarArbol($nomina, $concepto = false){
-        if($concepto){
-            $this->primerRecursoDB = $primerRecurso;
-            $atributos ['cadena_sql'] = $this->miSql->getCadenaSql ( "buscarFormula",$nomina );
+        if($concepto != false){
+            $atributos ['cadena_sql'] = $this->miSql->getCadenaSql ( "buscarFormulaConcepto",$nomina );
             $temp = $this->primerRecursoDB->ejecutarAcceso ( $atributos ['cadena_sql'], "busqueda" );
             if($temp != false){
+                $nombre = $nomina;
                 $nomina = $temp[0]['formula'];
+            }else{
+                $atributos ['cadena_sql'] = $this->miSql->getCadenaSql ( "buscarValorParametro",$nomina );
+                $temp = $this->primerRecursoDB->ejecutarAcceso ( $atributos ['cadena_sql'], "busqueda" );
+                if($temp != false){
+                    return new NodoConcepto($nomina,null,null,null,$temp[0]['valor']);
+                }else{
+                    $atributos ['cadena_sql'] = $this->miSql->getCadenaSql ( "buscarReferenciaVariable",$nomina );
+                    $temp = $this->primerRecursoDB->ejecutarAcceso ( $atributos ['cadena_sql'], "busqueda" );
+                    return new NodoConcepto($nomina,$temp[0]['valor'],null,null);
+                }
             }
             
         }
@@ -167,7 +176,8 @@ class Interprete implements InterpreteInterfaz{
     							}
     						
 	    						else if(preg_match("/[A-Z|_]{5}/", $caracterPop)){
-	    							$obj1 = new NodoConcepto($caracterPop,$caracterPop,null,null,null);
+	    							//$obj1 = new NodoConcepto($caracterPop,$caracterPop,null,null,null);
+                                                                $obj1 = $this->generarArbol($caracterPop, true);
 	    						}else if(preg_match("/[0-9]+/", $caracterPop)){
 	    							$obj1 = new NodoConcepto("*",null,null,null,$caracterPop);
 	    						}
@@ -179,6 +189,7 @@ class Interprete implements InterpreteInterfaz{
 	    							$obj3 = $caracterPop;
 	    						}else if(preg_match("/[A-Z|_]{5}/", $caracterPop)){
 	    							//$obj3 = new NodoConcepto($caracterPop,$caracterPop,null,null,null);
+                                                            $obj3 = $this->generarArbol($caracterPop, true);
 	    						}else if(preg_match("/[0-9]+/", $caracterPop)){
 	    							$obj3 = new NodoConcepto("*",null,null,null,$caracterPop);
 	    						}
@@ -216,7 +227,8 @@ class Interprete implements InterpreteInterfaz{
 		    						if(get_class($caracterPop)=="NodoConcepto"){
 		    							$obj1 = $caracterPop;
 		    						}else if(preg_match("/[A-Z|_]{5}/", $caracterPop)){
-		    							$obj1 = new NodoConcepto($caracterPop,$caracterPop,null,null,null);
+		    							//$obj1 = new NodoConcepto($caracterPop,$caracterPop,null,null,null);
+                                                                        $obj1 = $this->generarArbol($caracterPop, true);
 		    						}else if(preg_match("/[0-9]+/", $caracterPop)){
 		    							$obj1 = new NodoConcepto("*",null,null,null,$caracterPop);
 		    						}
@@ -227,7 +239,8 @@ class Interprete implements InterpreteInterfaz{
 		    						if(get_class($caracterPop)=="NodoConcepto"){
 		    							$obj3 = $caracterPop;
 		    						}else if(preg_match("/[A-Z|_]{5}/", $caracterPop)){
-		    							$obj3 = new NodoConcepto($caracterPop,$caracterPop,null,null,null);
+		    							//$obj3 = new NodoConcepto($caracterPop,$caracterPop,null,null,null);
+                                                                        $obj3 = $this->generarArbol($caracterPop, true);
 		    						}else if(preg_match("/[0-9]+/", $caracterPop)){
 		    							$obj3 = new NodoConcepto("*",null,null,null,$caracterPop);
 		    						}
@@ -262,7 +275,8 @@ class Interprete implements InterpreteInterfaz{
 				if(get_class($caracterPop)=="NodoConcepto"){
 					$obj1 = $caracterPop;
 				}else if(preg_match("/[A-Z|_]{5}/", $caracterPop)){
-					$obj1 = new NodoConcepto($caracterPop,$caracterPop,null,null,null);
+					//$obj1 = new NodoConcepto($caracterPop,$caracterPop,null,null,null);
+                                        $obj1 = $this->generarArbol($caracterPop, true);
 				}else if(preg_match("/[0-9]+/", $caracterPop)){
 					$obj1 = new NodoConcepto("*",null,null,null,$caracterPop);
 				}
@@ -272,7 +286,8 @@ class Interprete implements InterpreteInterfaz{
 				if(get_class($caracterPop)=="NodoConcepto"){
 					$obj3 = $caracterPop;
 				}else if(preg_match("/[A-Z|_]{5}/", $caracterPop)){
-					$obj3 = new NodoConcepto($caracterPop,$caracterPop,null,null,null);
+					//$obj3 = new NodoConcepto($caracterPop,$caracterPop,null,null,null);
+                                        $obj3 = $this->generarArbol($caracterPop, true);
 				}else if(preg_match("/[0-9]+/", $caracterPop)){
 					$obj3 = new NodoConcepto("*",null,null,null,$caracterPop);
 				}
@@ -282,6 +297,9 @@ class Interprete implements InterpreteInterfaz{
 			}
 
 		}
+                if($concepto != false){
+                    $stack[0]->nombreConcepto = $nombre;
+                }
 		return $stack[0];
     }
     
@@ -291,9 +309,107 @@ class Interprete implements InterpreteInterfaz{
 	*	@param NodoConcepto $nodoConcepto Arbol de operaciones
 	*	@param Referencias $referencias Referencias especificas para el calculo de los valores del arbol
 	*/
-    function evaluarArbol($nodoConcepto, $referencias){
-
+    function evaluarArbol($nodoConcepto, $parametros){
+        
+        $listaReferencias = $nodoConcepto->getListaReferencias();
+        $datosReferencias = $this->obtenerDatosReferencias($listaReferencias);
+        $estadisticasReferencias = $this->obtenerEstadisticas($listaReferencias);
+        
+        $atributos ['cadena_sql'] = $this->miSql->getCadenaSql ( "buscarPersonasxVinculacion", $parametros['tipo_vinculacion'] );
+        $personas = $this->primerRecursoDB->ejecutarAcceso ( $atributos ['cadena_sql'], "busqueda" );
+        
+        foreach($personas as $persona){
+            $nodo = $nodoConcepto->clonar();
+            $nodo->evaluarConcepto($referencias[$persona['id']]);
+            foreach ($nodo->conceptos as $concepto){
+                $atributos ['cadena_sql'] = $this->miSql->getCadenaSql ( "insertarCalculoConceptos",
+                        array('preliquidacion'=>$parametros['preliquidacion'],
+                            'persona'=>$persona['id'],
+                            'concepto'=>$concepto->nombreConcepto,
+                            'valor'=>$concepto->valorConcepto) );
+                $resultado = $this->primerRecursoDB->ejecutarAcceso ( $atributos ['cadena_sql'], "acceso" );
+            }
+        }   
+    }
+    
+    
+    function obtenerEstadisticas($listaReferencias){
+        $query = "";
+        $queryFrom = "";
+        $queryGruop = "";
+        $start = 0;
+        $cont = $start;
+        if(count($listaReferencias) == 1){
+            $nombre = key($listaReferencias);
+            $query .= "SELECT count(*), valor as \"$nombre\" from (";
+            $query .= $listaReferencias[$nombre];
+            $query .= ") ref$start";
+        }else{
+            $query .= "SELECT count(*)";
+            
+            foreach($listaReferencias as $nombre => $valor){
+                
+                $query      .= ", ref$cont.\"$nombre\" as \"$nombre\"";
+                
+                if($cont != $start){
+                    $queryFrom .= " FULL JOIN ";
+                }
+                
+                $queryFrom  .= "(".$listaReferencias[$nombre].") ref$cont";
+                
+                if($cont != $start){
+                    $queryFrom .= " ON ref".($cont-1).".id = ref$cont.id ";
+                }
+                
+                $queryGruop .= "\"$nombre\", ";
+            }
+            
+            $query .= " FROM ".$queryFrom." GROUP BY ".$queryGruop;
+        }
+        $resultado = $this->primerRecursoDB->ejecutarAcceso ( $query, "busqueda" );
+        return $resultado;
+    }
+    
+    function obtenerDatosReferencias($referencias){
+        $referenciasFinales = null;
+        foreach($referencias as $nombre => $referencia){
+            $resultado = $this->primerRecursoDB->ejecutarAcceso ( $referencia, "busqueda" );
+            $resultado = $this->transformarResultado($resultado, $nombre);
+            if($referenciasFinales == null){
+                $referenciasFinales = $resultado;
+            }else{
+                $referenciasFinales = array_merge_recursive($referenciasFinales, $resultado);
+            }
+        }
+        return $referenciasFinales;
+    }
+    
+    function transformarResultado($array, $nombre){
+        $new_array = array();
+        foreach($array as $registro){
+            $new_array[$registro['id'].''][$nombre.''] = $registro['valor'];
+        }
+        return $new_array;
+    }
+    
+    function filtro_array($array, $filtro){
+        $new_array = array();
+        $save = true;
+        foreach ($array as $key => $value) {
+            $save = true;
+            foreach ($filtro as $keyFiltro => $valueFiltro){
+                if($value[$keyFiltro]!=$valueFiltro){
+                    $save = false;
+                }
+            }
+            if($save){
+                $new_array[$key] = $value;
+            }
+        }
+        return $new_array;
     }
 }
+
+
 
 ?>

@@ -4,6 +4,7 @@ namespace bloquesConcepto\contenidoConcepto\funcion;
 
 
 include_once('Redireccionador.php');
+include "Interprete.php";
 
 class FormProcessor {
     
@@ -45,7 +46,15 @@ class FormProcessor {
         $resultado=$primerRecursoDB->ejecutarAcceso($atributos['cadena_sql'], "acceso");
         //Al final se ejecuta la redirección la cual pasará el control a otra página
          if (!empty($resultado)) {
-              Redireccionador::redireccionar('inserto',$datos);
+            $atributos ['cadena_sql'] = $this->miSql->getCadenaSql("generarFormulaNomina",$_REQUEST['tipo_nomina']);
+            $result=$primerRecursoDB->ejecutarAcceso($atributos['cadena_sql'], "busqueda");
+            $nomina = $result[0]['formula'];
+            $interprete = new \Interprete($this->lenguaje, $this->miSql, $primerRecursoDB);
+            $arbol = $interprete->generarArbol($nomina);
+            $interprete->evaluarArbol($arbol, 
+                    array('tipo_vinculacion'=>$_REQUEST['tipo_vinculacion'],
+                        'preliquidacion'=>$resultado));
+            Redireccionador::redireccionar('inserto',$datos);
             exit();
         } else {
            Redireccionador::redireccionar('noInserto',$atributos ['cadena_sql']);
